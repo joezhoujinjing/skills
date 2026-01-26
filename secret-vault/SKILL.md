@@ -19,12 +19,15 @@ gcloud config set project YOUR_PROJECT_ID
 
 ## Naming Convention
 
-Pattern: `{service}/{component}/{secret-type}`
+Pattern: `{service}-{component}-{secret-type}` (hyphen-separated)
+
+Google Secret Manager requires names to match `[a-zA-Z_0-9]+` (letters, numbers, underscores, hyphens only - no slashes).
 
 Examples:
-- `agents/api-client/openai-key`
-- `agents/database/connection-string`
-- `shared/gcp/service-account-key`
+- `agents-api-client-openai-key`
+- `agents-database-connection-string`
+- `shared-godaddy-dns-api-key`
+- `shared-gcp-service-account-key`
 
 ## Commands
 
@@ -44,7 +47,7 @@ gcloud secrets versions access latest --secret="<name>"
 
 Example:
 ```bash
-/secret-vault get agents/api-client/openai-key
+/secret-vault get agents-api-client-openai-key
 ```
 
 ### `/secret-vault list [prefix]`
@@ -61,15 +64,16 @@ gcloud secrets list --format="table(name,createTime,updateTime)" | grep "<prefix
 Examples:
 ```bash
 /secret-vault list
-/secret-vault list agents/
+/secret-vault list agents-
 /secret-vault list nexus-hub
+/secret-vault list shared-godaddy
 ```
 
 ### `/secret-vault set <name> <value>`
 Create or update a secret. Always confirm with user before executing.
 
 ```bash
-# Validate naming: must match ^[a-z0-9-]+/[a-z0-9-]+/[a-z0-9-]+$
+# Validate naming: must match ^[a-zA-Z_0-9-]+$ (no slashes allowed)
 
 # Check if exists, then create or update
 if gcloud secrets describe "<name>" &>/dev/null; then
@@ -81,7 +85,8 @@ fi
 
 Example:
 ```bash
-/secret-vault set agents/api-client/openai-key "sk-..."
+/secret-vault set agents-api-client-openai-key "sk-..."
+/secret-vault set shared-godaddy-dns-api-key "your-api-key"
 ```
 
 ### `/secret-vault delete <name>`
