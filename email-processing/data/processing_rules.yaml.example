@@ -1,0 +1,72 @@
+# Email Processing Rules Configuration
+# Copy this to processing_rules.yaml and customize for your needs
+
+# Categories that should be auto-archived (no review needed)
+auto_archive_categories:
+  - newsletter
+  - notification
+  - receipt
+  - calendar
+  - social_notification
+
+# Domains that should be auto-archived
+auto_archive_domains:
+  # Newsletters & Content
+  - substack.com
+  - medium.com
+  - beehiiv.com
+  - convertkit.com
+
+  # Social Networks (notifications only, not DMs)
+  - linkedin.com
+  - twitter.com
+  - facebook.com
+
+  # SaaS Tools (non-urgent notifications)
+  - github.com
+  - notion.so
+  - slack.com
+  - figma.com
+
+# Keywords that require manual review (override auto-archive)
+require_review_keywords:
+  - action required
+  - urgent
+  - approve
+  - approval needed
+  - confirm
+  - verification
+  - deadline
+  - due
+  - overdue
+  - final notice
+  - expiring
+  - expires
+
+# Keywords that suggest creating a Trello card
+auto_trello_keywords:
+  - proposal
+  - contract
+  - agreement
+  - review document
+  - review this
+  - feedback on
+  - thoughts on
+
+# Domains that always require review (never auto-archive)
+always_review_domains:
+  - multifi.ai  # Internal company domain
+  # Add your company domains here
+
+# Custom rules for specific senders
+custom_sender_rules:
+  # Example: Always archive specific newsletters
+  - sender: newsletter@example.com
+    action: archive
+    reason: "Newsletter I don't read"
+
+  # Example: Always create Trello for specific person
+  # - sender: boss@company.com
+  #   action: trello
+  #   reason: "Boss requests need tracking"
+  #   default_due_days: 2

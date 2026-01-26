@@ -151,16 +151,16 @@ def get_unprocessed_emails(service, max_results=None):
         sys.exit(1)
 
 
-def save_to_yaml(email_data, output_dir):
+def save_to_yaml(email_data, output_dir, skill_dir_only=False):
     """Save email data to YAML file."""
     try:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        # Always save to data directory in skill folder
+        skill_dir = Path(__file__).parent.parent
+        data_dir = skill_dir / "data"
+        data_dir.mkdir(exist_ok=True)
+        skill_output = data_dir / "emails_dump.yaml"
 
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = output_dir / f"unread_emails_{timestamp}.yaml"
-
-        with open(output_file, "w", encoding="utf-8") as f:
+        with open(skill_output, "w", encoding="utf-8") as f:
             yaml.dump(
                 {
                     "export_date": datetime.datetime.now().isoformat(),
@@ -173,9 +173,32 @@ def save_to_yaml(email_data, output_dir):
                 sort_keys=False
             )
 
-        print(f"✅ Successfully exported {len(email_data)} emails to:")
-        print(f"   {output_file}")
-        return output_file
+        print(f"✅ Saved to skill directory: {skill_output}")
+
+        # Also save timestamped backup to output_dir if requested
+        if not skill_dir_only:
+            output_dir = Path(output_dir)
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_file = output_dir / f"unread_emails_{timestamp}.yaml"
+
+            with open(backup_file, "w", encoding="utf-8") as f:
+                yaml.dump(
+                    {
+                        "export_date": datetime.datetime.now().isoformat(),
+                        "total_emails": len(email_data),
+                        "emails": email_data
+                    },
+                    f,
+                    default_flow_style=False,
+                    allow_unicode=True,
+                    sort_keys=False
+                )
+
+            print(f"✅ Backup saved to: {backup_file}")
+
+        return skill_output
 
     except Exception as e:
         print(f"❌ Error saving to YAML: {e}", file=sys.stderr)
@@ -201,8 +224,36 @@ def main():
         "--refresh-token-secret",
         help="Secret name for Gmail refresh token"
     )
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Verify inbox zero (just check count)"
+    )
 
     args = parser.parse_args()
+
+    # Verify mode - just check inbox count
+    if args.verify:
+        print("🔐 Authenticating with Gmail...")
+        credentials = get_credentials(refresh_token_secret=args.refresh_token_secret)
+        service = build("gmail", "v1", credentials=credentials)
+
+        results = service.users().messages().list(
+            userId="me",
+            q="is:unread in:inbox",
+            maxResults=1
+        ).execute()
+
+        count = results.get("resultSizeEstimate", 0)
+
+        if count == 0:
+            print("\n🎉 INBOX ZERO ACHIEVED! 🎉")
+            print("✨ All emails processed successfully!")
+        else:
+            print(f"\n📮 {count} emails remaining in inbox")
+            print("   Keep processing to reach inbox zero!")
+
+        return
 
     # Expand home directory
     output_dir = Path(args.output_dir).expanduser()
