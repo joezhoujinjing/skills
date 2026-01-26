@@ -50,32 +50,36 @@ python scripts/gmail_api.py forward --message-id {id} --to "delegate@ex.com" --b
 
 When email requires >2 min work, create a Trello card:
 
-**Card Name**: Actionable title (start with verb)
+```bash
+# Create card with default settings (multifi board, To Do list, due tomorrow)
+python create_trello_card.py --message-id {message_id} \
+  --action "What needs to be done"
 
-**Card Description**:
+# Create card with custom title and due date
+python create_trello_card.py --message-id {message_id} \
+  --title "Custom Task Title" \
+  --action "Detailed action items" \
+  --due-days 3
+
+# Create card in different board/list
+python create_trello_card.py --message-id {message_id} \
+  --board "personal" \
+  --list "Doing" \
+  --action "Action description"
+```
+
+**Card format** (auto-generated):
 ```
 ## Email Context
-- **From**: {sender} <{email}>
-- **Date**: {date}
-- **Subject**: {subject}
+- From: {sender}
+- Date: {date}
+- Subject: {subject}
 
 ## Original Message
-{excerpt}
+{email snippet}
 
 ## Next Action
-{what to do}
-```
-
-**Create card**:
-```bash
-TRELLO_API_KEY=$(gcloud secrets versions access latest --secret="trello-api-key")
-TRELLO_TOKEN=$(gcloud secrets versions access latest --secret="trello-token")
-
-curl -s -X POST "https://api.trello.com/1/cards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" \
-  -d "idList={listId}" \
-  -d "name=Task title" \
-  -d "desc=## Email Context..." \
-  -d "due=2024-01-19T17:00:00.000Z"
+{your action notes}
 ```
 
 ## Rules
