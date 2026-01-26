@@ -70,11 +70,93 @@ Protect morning focus hours — don't start the day in email.
 - Never process email during deep work
 - Set expectations: you don't reply instantly
 
-## Extracting Actions
+## Extracting Actions to Trello
 
-When an email requires real work:
+When an email requires real work (>2 min), create a Trello card with the email context:
 
-1. Identify the concrete next action
-2. Write it in your task system with context
-3. Archive the email (or link to it)
-4. The email leaves your inbox; the action lives in your system
+### Process
+
+1. Identify the concrete next action from the email
+2. Create a Trello card with email metadata
+3. Archive the email in Gmail
+4. The email leaves your inbox; the action lives in Trello
+
+### Card Format
+
+**Card Name**: Clear, actionable task title (start with verb)
+
+**Card Description**:
+```
+## Email Context
+- **From**: {sender name} <{sender email}>
+- **Date**: {received date}
+- **Subject**: {original subject}
+
+## Original Message
+{relevant excerpt or full body}
+
+## Next Action
+{what specifically needs to be done}
+
+## Due Date
+{if mentioned or implied in email}
+```
+
+### Example
+
+Email: "Hi, can you review the Q4 budget proposal and send feedback by Friday?"
+
+**Card Name**: Review Q4 budget proposal and send feedback
+
+**Card Description**:
+```
+## Email Context
+- **From**: Sarah Chen <sarah@company.com>
+- **Date**: 2024-01-15
+- **Subject**: Q4 Budget Review Request
+
+## Original Message
+Hi, can you review the Q4 budget proposal and send feedback by Friday?
+The document is in the shared drive under Finance/Q4.
+
+## Next Action
+1. Open Q4 budget proposal in shared drive
+2. Review line items and assumptions
+3. Reply to Sarah with feedback
+
+## Due Date
+Friday (2024-01-19)
+```
+
+### Creating the Card
+
+```bash
+# Get credentials
+TRELLO_API_KEY=$(gcloud secrets versions access latest --secret="trello-api-key")
+TRELLO_TOKEN=$(gcloud secrets versions access latest --secret="trello-token")
+
+# Create card with email context
+curl -s -X POST "https://api.trello.com/1/cards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" \
+  -d "idList={actionListId}" \
+  -d "name=Review Q4 budget proposal and send feedback" \
+  -d "desc=## Email Context
+- **From**: Sarah Chen <sarah@company.com>
+- **Date**: 2024-01-15
+- **Subject**: Q4 Budget Review Request
+
+## Original Message
+Hi, can you review the Q4 budget proposal and send feedback by Friday?
+
+## Next Action
+Review and reply with feedback
+
+## Due Date
+2024-01-19" \
+  -d "due=2024-01-19T17:00:00.000Z"
+```
+
+### Tips
+
+- Use a dedicated "📥 Inbox" or "@Action" list in Trello for email-derived tasks
+- Add labels for email source (e.g., "from-email") to track origin
+- Link back to the email if needed using Gmail message ID in the description
