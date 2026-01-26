@@ -8,6 +8,9 @@ import base64
 import sys
 import json
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from googleapiclient.discovery import build
 from oauth_helper import get_credentials, print_auth_info
 
@@ -216,34 +219,89 @@ def reply_message(service, message_id, body, reply_all=False, to_override=None):
         sys.exit(1)
 
 
+def get_attachments(service, message_id, message_payload):
+    """Extract all attachments from a message."""
+    attachments = []
+
+    def process_parts(parts):
+        for part in parts:
+            if part.get('filename'):
+                attachment_id = part['body'].get('attachmentId')
+                if attachment_id:
+                    # Download attachment
+                    att = service.users().messages().attachments().get(
+                        userId='me',
+                        messageId=message_id,
+                        id=attachment_id
+                    ).execute()
+
+                    data = base64.urlsafe_b64decode(att['data'])
+                    attachments.append({
+                        'filename': part['filename'],
+                        'mimeType': part['mimeType'],
+                        'data': data
+                    })
+
+            if 'parts' in part:
+                process_parts(part['parts'])
+
+    if 'parts' in message_payload:
+        process_parts(message_payload['parts'])
+
+    return attachments
+
+
 def forward_message(service, message_id, to, body=None):
-    """Forward an email to new recipients."""
+    """Forward an email to new recipients with attachments preserved."""
     try:
-        orig = get_message_for_reply(service, message_id)
+        # Get original message with full payload
+        orig_message = service.users().messages().get(
+            userId="me",
+            id=message_id,
+            format="full"
+        ).execute()
+
+        headers = {h["name"]: h["value"] for h in orig_message["payload"]["headers"]}
+        orig_body = extract_body(orig_message["payload"]) or ""
 
         # Build subject with Fwd: prefix
-        subject = orig["subject"]
+        subject = headers.get("Subject", "")
         if not subject.lower().startswith("fwd:") and not subject.lower().startswith("fw:"):
             subject = f"Fwd: {subject}"
+
+        # Get attachments
+        attachments = get_attachments(service, message_id, orig_message["payload"])
+
+        # Create multipart message
+        message = MIMEMultipart()
+        message["to"] = to
+        message["subject"] = subject
 
         # Build forward body
         forward_header = f"""
 ---------- Forwarded message ---------
-From: {orig['from']}
-Date: {orig['date']}
-Subject: {orig['subject']}
-To: {orig['to']}
+From: {headers.get('From', '')}
+Date: {headers.get('Date', '')}
+Subject: {headers.get('Subject', '')}
+To: {headers.get('To', '')}
 """
         if body:
-            full_body = f"{body}\n{forward_header}\n{orig['body']}"
+            full_body = f"{body}\n{forward_header}\n{orig_body}"
         else:
-            full_body = f"{forward_header}\n{orig['body']}"
+            full_body = f"{forward_header}\n{orig_body}"
 
-        # Create message (forward starts new thread by default)
-        message = MIMEText(full_body)
-        message["to"] = to
-        message["subject"] = subject
+        # Attach text body
+        message.attach(MIMEText(full_body, 'plain'))
 
+        # Attach files
+        for att in attachments:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(att['data'])
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', f'attachment; filename="{att["filename"]}"')
+            message.attach(part)
+
+        # Send
         raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
         send_body = {"raw": raw}
 
@@ -252,6 +310,10 @@ To: {orig['to']}
         print(f"   Message ID: {result['id']}")
         print(f"   To: {to}")
         print(f"   Subject: {subject}")
+        if attachments:
+            print(f"   Attachments: {len(attachments)} file(s)")
+            for att in attachments:
+                print(f"     • {att['filename']}")
 
     except Exception as e:
         print(f"❌ Error forwarding message: {e}", file=sys.stderr)
