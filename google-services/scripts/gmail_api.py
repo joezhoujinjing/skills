@@ -124,6 +124,140 @@ def send_message(service, to, subject, body, cc=None, bcc=None):
         sys.exit(1)
 
 
+def get_message_for_reply(service, message_id):
+    """Get message details needed for reply/forward."""
+    message = service.users().messages().get(userId="me", id=message_id, format="full").execute()
+    headers = {h["name"]: h["value"] for h in message["payload"]["headers"]}
+    body = extract_body(message["payload"]) or ""
+    return {
+        "id": message_id,
+        "threadId": message["threadId"],
+        "from": headers.get("From", ""),
+        "to": headers.get("To", ""),
+        "cc": headers.get("Cc", ""),
+        "subject": headers.get("Subject", ""),
+        "date": headers.get("Date", ""),
+        "message_id": headers.get("Message-ID", ""),
+        "references": headers.get("References", ""),
+        "body": body,
+    }
+
+
+def parse_email_address(addr_string):
+    """Extract email address from 'Name <email>' format."""
+    import re
+    match = re.search(r'<([^>]+)>', addr_string)
+    if match:
+        return match.group(1)
+    return addr_string.strip()
+
+
+def reply_message(service, message_id, body, reply_all=False, to_override=None):
+    """Reply to an email. Optionally reply-all or specify recipients."""
+    try:
+        orig = get_message_for_reply(service, message_id)
+
+        # Determine recipients
+        if to_override:
+            to = to_override
+            cc = None
+        elif reply_all:
+            # Reply to sender + all original To/CC (excluding self)
+            to = orig["from"]
+            # Combine original To and CC, filter later if needed
+            cc_list = []
+            if orig["to"]:
+                cc_list.extend([addr.strip() for addr in orig["to"].split(",")])
+            if orig["cc"]:
+                cc_list.extend([addr.strip() for addr in orig["cc"].split(",")])
+            cc = ", ".join(cc_list) if cc_list else None
+        else:
+            # Simple reply to sender
+            to = orig["from"]
+            cc = None
+
+        # Build subject with Re: prefix
+        subject = orig["subject"]
+        if not subject.lower().startswith("re:"):
+            subject = f"Re: {subject}"
+
+        # Build reply body with quoted original
+        quoted_body = "\n".join(f"> {line}" for line in orig["body"].split("\n"))
+        full_body = f"{body}\n\nOn {orig['date']}, {orig['from']} wrote:\n{quoted_body}"
+
+        # Create message
+        message = MIMEText(full_body)
+        message["to"] = to
+        message["subject"] = subject
+        if cc:
+            message["cc"] = cc
+
+        # Set reply headers
+        if orig["message_id"]:
+            message["In-Reply-To"] = orig["message_id"]
+            refs = orig["references"]
+            message["References"] = f"{refs} {orig['message_id']}".strip() if refs else orig["message_id"]
+
+        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        send_body = {"raw": raw, "threadId": orig["threadId"]}
+
+        result = service.users().messages().send(userId="me", body=send_body).execute()
+        mode = "Reply-All" if reply_all else ("Reply to specific" if to_override else "Reply")
+        print(f"✅ {mode} sent successfully!")
+        print(f"   Message ID: {result['id']}")
+        print(f"   Thread ID: {result['threadId']}")
+        print(f"   To: {to}")
+        if cc:
+            print(f"   CC: {cc}")
+        print(f"   Subject: {subject}")
+
+    except Exception as e:
+        print(f"❌ Error sending reply: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def forward_message(service, message_id, to, body=None):
+    """Forward an email to new recipients."""
+    try:
+        orig = get_message_for_reply(service, message_id)
+
+        # Build subject with Fwd: prefix
+        subject = orig["subject"]
+        if not subject.lower().startswith("fwd:") and not subject.lower().startswith("fw:"):
+            subject = f"Fwd: {subject}"
+
+        # Build forward body
+        forward_header = f"""
+---------- Forwarded message ---------
+From: {orig['from']}
+Date: {orig['date']}
+Subject: {orig['subject']}
+To: {orig['to']}
+"""
+        if body:
+            full_body = f"{body}\n{forward_header}\n{orig['body']}"
+        else:
+            full_body = f"{forward_header}\n{orig['body']}"
+
+        # Create message (forward starts new thread by default)
+        message = MIMEText(full_body)
+        message["to"] = to
+        message["subject"] = subject
+
+        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        send_body = {"raw": raw}
+
+        result = service.users().messages().send(userId="me", body=send_body).execute()
+        print(f"✅ Forward sent successfully!")
+        print(f"   Message ID: {result['id']}")
+        print(f"   To: {to}")
+        print(f"   Subject: {subject}")
+
+    except Exception as e:
+        print(f"❌ Error forwarding message: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
 def get_labels(service):
     """List Gmail labels."""
     try:
@@ -145,16 +279,17 @@ def get_labels(service):
 
 def main():
     parser = argparse.ArgumentParser(description="Gmail API Helper")
-    parser.add_argument("command", choices=["list", "read", "search", "send", "labels"],
+    parser.add_argument("command", choices=["list", "read", "search", "send", "reply", "forward", "labels"],
                         help="Command to execute")
     parser.add_argument("--max-results", type=int, default=10, help="Maximum results to return")
     parser.add_argument("--query", help="Search query")
-    parser.add_argument("--message-id", help="Message ID for read command")
+    parser.add_argument("--message-id", help="Message ID for read/reply/forward commands")
     parser.add_argument("--to", help="Recipient email address")
     parser.add_argument("--subject", help="Email subject")
     parser.add_argument("--body", help="Email body")
     parser.add_argument("--cc", help="CC recipients")
     parser.add_argument("--bcc", help="BCC recipients")
+    parser.add_argument("--reply-all", action="store_true", help="Reply to all recipients")
     parser.add_argument("--refresh-token-secret", help="Secret name for refresh token")
 
     args = parser.parse_args()
@@ -184,6 +319,22 @@ def main():
             print("❌ --to, --subject, and --body are required for send command", file=sys.stderr)
             sys.exit(1)
         send_message(service, args.to, args.subject, args.body, cc=args.cc, bcc=args.bcc)
+    elif args.command == "reply":
+        if not args.message_id:
+            print("❌ --message-id is required for reply command", file=sys.stderr)
+            sys.exit(1)
+        if not args.body:
+            print("❌ --body is required for reply command", file=sys.stderr)
+            sys.exit(1)
+        reply_message(service, args.message_id, args.body, reply_all=args.reply_all, to_override=args.to)
+    elif args.command == "forward":
+        if not args.message_id:
+            print("❌ --message-id is required for forward command", file=sys.stderr)
+            sys.exit(1)
+        if not args.to:
+            print("❌ --to is required for forward command", file=sys.stderr)
+            sys.exit(1)
+        forward_message(service, args.message_id, args.to, body=args.body)
     elif args.command == "labels":
         get_labels(service)
 
