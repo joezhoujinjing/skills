@@ -1,0 +1,3 @@
+[submodule "notebooklm"]
+	path = notebooklm
+	url = https://github.com/sudoprivacy/notebooklm-skill
