@@ -80,7 +80,7 @@ sync_one() {
   echo "==> Syncing $agent ($worktree)"
   git -C "$worktree" fetch origin
   git -C "$worktree" pull --rebase origin main
-  git -C "$worktree" push origin "HEAD:$agent"
+  git -C "$worktree" push origin "HEAD:agents/$agent"
 }
 
 if [[ "$agent_arg" == "all" ]]; then

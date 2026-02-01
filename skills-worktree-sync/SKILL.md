@@ -8,7 +8,7 @@ description: "Set up and maintain a shared skills Git repo using git worktrees a
 ## Quick start (clone + create worktrees)
 
 1. Clone the skills repo to `~/skills` (bare repo; canonical store).
-2. Create a worktree for each agent folder with its own branch.
+2. Create a worktree for each agent folder with its own branch (recommended: `agents/<name>`).
 3. Restore any local-only folders (e.g., `.system` under Codex) as untracked.
 4. Verify worktrees with `git worktree list`.
 
@@ -19,9 +19,9 @@ Example (use the user's chosen parent repo path):
 git clone --bare <repo-url> ~/skills
 
 # 2) Create agent worktrees (each agent has its own branch)
-git --git-dir=~/skills worktree add -b claude ~/.claude/skills main
-git --git-dir=~/skills worktree add -b codex ~/.codex/skills main
-git --git-dir=~/skills worktree add -b cursor ~/.cursor/skills main
+git --git-dir=~/skills worktree add -b agents/claude ~/.claude/skills main
+git --git-dir=~/skills worktree add -b agents/codex ~/.codex/skills main
+git --git-dir=~/skills worktree add -b agents/cursor ~/.cursor/skills main
 
 # 3) Restore local-only folders (if any)
 # mv ~/.skills-untracked-backup/agent-session-organizer ~/.claude/skills/
@@ -44,12 +44,18 @@ git config --global push.autoSetupRemote true
 Use the bundled script to sync agent branches to `main` and push updates:
 
 ```bash
-./skills-worktree-sync/scripts/sync-agent-branches.sh all
-./skills-worktree-sync/scripts/sync-agent-branches.sh claude
+./skills-worktree-sync/scripts/sync-agent-branches.sh all --repo ~/skills
+./skills-worktree-sync/scripts/sync-agent-branches.sh claude --repo ~/skills
 ```
 
-If you commit from an agent worktree, the script will rebase onto `main` and push `HEAD:<agent>`.
+If you commit from an agent worktree, the script will rebase onto `main` and push `HEAD:agents/<agent>`.
 Merge to `main` via your preferred flow (PR or direct push).
+
+If the script isn't executable:
+
+```bash
+chmod +x skills-worktree-sync/scripts/sync-agent-branches.sh
+```
 
 ## Agent registry (extendable)
 
@@ -64,7 +70,7 @@ Default agents are `claude`, `codex`, and `cursor` with worktrees at:
 To add more agents, create a new worktree and update the agent map in:
 `skills-worktree-sync/scripts/sync-agent-branches.sh`.
 
-When updating a skill inside an agent worktree, commit and push to that agent's branch (e.g., `codex`, `cursor`) by default.
+When updating a skill inside an agent worktree, commit and push to that agent's branch (e.g., `agents/codex`, `agents/cursor`) by default.
 
 ## Add a new agent folder
 
