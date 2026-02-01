@@ -4,3 +4,6 @@
 [submodule "nexus-api-skill"]
 	path = nexus-api-skill
 	url = https://github.com/nexi-lab/nexus-api-skill
+[submodule "feishu-automation"]
+	path = feishu-automation
+	url = https://github.com/sudoprivacy/feishu-automation
