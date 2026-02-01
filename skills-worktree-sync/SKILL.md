@@ -31,6 +31,14 @@ git --git-dir=~/skills worktree add -b cursor ~/.cursor/skills main
 git --git-dir=~/skills worktree list
 ```
 
+## Remote branch tracking (recommended during setup)
+
+Enable automatic upstream tracking for new branches:
+
+```bash
+git config --global push.autoSetupRemote true
+```
+
 ## Sync workflow
 
 Use the bundled script to sync agent branches to `main` and push updates:
@@ -55,6 +63,8 @@ Default agents are `claude`, `codex`, and `cursor` with worktrees at:
 
 To add more agents, create a new worktree and update the agent map in:
 `skills-worktree-sync/scripts/sync-agent-branches.sh`.
+
+When updating a skill inside an agent worktree, commit and push to that agent's branch (e.g., `codex`, `cursor`) by default.
 
 ## Add a new agent folder
 
