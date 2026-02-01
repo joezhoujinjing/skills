@@ -10,7 +10,7 @@ description: "Set up and maintain a shared skills Git repo using git worktrees a
 1. Identify the current skills repo (default: `~/.claude/skills`).
 2. Back up any local-only/untracked folders before moving the repo.
 3. Create a bare parent repo (canonical store) at the agreed path.
-4. Add per-agent worktrees with unique branches.
+4. Add per-agent worktrees with unique branches (use `claude` for `~/.claude/skills`).
 5. Restore local-only folders (e.g., `.system` under Codex) as untracked.
 6. Verify worktrees with `git worktree list`.
 
@@ -29,7 +29,7 @@ mv ~/.claude/skills ~/.skills-worktree-backup/claude-skills
 git clone --bare ~/.skills-worktree-backup/claude-skills /Users/jinjingzhou/skills
 
 # 4) Add worktrees (main can only be checked out once)
-git --git-dir=/Users/jinjingzhou/skills worktree add ~/.claude/skills main
+git --git-dir=/Users/jinjingzhou/skills worktree add -b claude ~/.claude/skills main
 git --git-dir=/Users/jinjingzhou/skills worktree add -b codex ~/.codex/skills main
 git --git-dir=/Users/jinjingzhou/skills worktree add -b cursor ~/.cursor/skills main
 
@@ -47,10 +47,10 @@ git --git-dir=/Users/jinjingzhou/skills worktree list
 Use this to keep branches aligned with `origin/main` while allowing edits from any agent folder.
 
 ```bash
-# Update main worktree
+# Update claude worktree (tracks claude branch)
 cd ~/.claude/skills
 git fetch origin
-git pull --rebase origin main
+git pull --rebase origin claude
 
 # Update other worktrees (rebases their branch onto origin/main)
 cd ~/.codex/skills
