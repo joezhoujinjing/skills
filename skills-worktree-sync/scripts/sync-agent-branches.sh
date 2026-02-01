@@ -81,6 +81,8 @@ sync_one() {
   git -C "$worktree" fetch origin
   git -C "$worktree" pull --rebase origin main
   git -C "$worktree" push origin "HEAD:agents/$agent"
+  echo "==> Pushing $agent changes to main"
+  git -C "$worktree" push origin "HEAD:main"
 }
 
 if [[ "$agent_arg" == "all" ]]; then
