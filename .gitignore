@@ -147,6 +147,9 @@ cython_debug/
 .AppleDouble
 .LSOverride
 
+# Codex system skills (local-only)
+.system/
+
 # Temporary files
 *.tmp
 *.bak
