@@ -5,6 +5,15 @@ description: "Set up and maintain a shared skills Git repo using git worktrees a
 
 # Skills Worktree Sync
 
+## One-command setup (recommended)
+
+```bash
+./skills-worktree-sync/scripts/setup-worktrees.sh --repo-url <repo-url> --bare ~/skills
+```
+
+This creates the bare repo, adds `agents/<name>` worktrees for `claude`, `codex`, and `cursor`,
+enables auto upstream tracking, then runs the sync script.
+
 ## Quick start (clone + create worktrees)
 
 1. Clone the skills repo to `~/skills` (bare repo; canonical store).
