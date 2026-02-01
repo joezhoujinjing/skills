@@ -7,3 +7,6 @@
 [submodule "feishu-automation"]
 	path = feishu-automation
 	url = https://github.com/sudoprivacy/feishu-automation
+[submodule "browser-automation-creator"]
+	path = browser-automation-creator
+	url = https://github.com/sudoprivacy/browser-automation-creator
