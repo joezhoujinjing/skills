@@ -1,3 +1,8 @@
+---
+name: google-services
+description: Comprehensive Google API access via OAuth 2.0. Use when Claude needs to work with Gmail, Drive, Docs, Sheets, Calendar, Slides, or Forms for listing/searching/reading/creating/updating content, sending email, or managing files/events.
+---
+
 Base directory for this skill: /Users/jinjingzhou/.claude/skills/google-services
 
 # Google Services Skill
