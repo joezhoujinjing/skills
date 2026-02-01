@@ -1,6 +1,3 @@
-[submodule "notebooklm"]
-	path = notebooklm
-	url = https://github.com/sudoprivacy/notebooklm-skill
 [submodule "nexus-api-skill"]
 	path = nexus-api-skill
 	url = https://github.com/nexi-lab/nexus-api-skill
