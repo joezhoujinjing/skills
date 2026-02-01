@@ -78,7 +78,7 @@ sync_one() {
   fi
 
   echo "==> Syncing $agent ($worktree)"
-  git -C "$worktree" fetch origin
+  git -C "$worktree" fetch origin main:refs/remotes/origin/main
   git -C "$worktree" pull --rebase origin main
   git -C "$worktree" push origin "HEAD:agents/$agent"
   echo "==> Pushing $agent changes to main"
