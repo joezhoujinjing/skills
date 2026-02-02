@@ -7,3 +7,6 @@
 [submodule "browser-automation-creator"]
 	path = browser-automation-creator
 	url = https://github.com/sudoprivacy/browser-automation-creator
+[submodule "notebooklm/vendor/notebooklm-mcp-cli"]
+	path = notebooklm/vendor/notebooklm-mcp-cli
+	url = https://github.com/jacob-bd/notebooklm-mcp-cli.git
