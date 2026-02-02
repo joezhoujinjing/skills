@@ -39,14 +39,14 @@ def main():
             title = args.title or args.url
             result = client.add_url_source(args.notebook_id, args.url, title)
             if result and isinstance(result, dict):
-                source_id = result.get("source_id")
+                source_id = result.get("id") or result.get("source_id")
 
         elif args.text:
             source_type = "text"
             title = args.title or "Text Source"
             result = client.add_text_source(args.notebook_id, args.text, title)
             if result and isinstance(result, dict):
-                source_id = result.get("source_id")
+                source_id = result.get("id") or result.get("source_id")
 
         elif args.file:
             source_type = "file"
@@ -57,7 +57,7 @@ def main():
 
             result = client.upload_file(args.notebook_id, str(file_path))
             if result and isinstance(result, dict):
-                source_id = result.get("source_id")
+                source_id = result.get("id") or result.get("source_id")
 
         if not source_id:
             print("Error: Failed to add source", file=sys.stderr)
