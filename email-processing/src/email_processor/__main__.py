@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from .cli.process import EmailProcessor
+from .cli.search import search
 
 
 def _find_skill_root() -> Path:
@@ -20,14 +21,20 @@ def _find_skill_root() -> Path:
 
 def main():
     """Main entry point for email processing."""
-    # Parse arguments
     if len(sys.argv) < 2:
-        print("Usage: python -m email_processor <email>")
+        print("Usage: python -m email_processor <email> [limit]")
+        print("       python -m email_processor search <query> [options]")
         print()
         print("  Examples:")
         print("    python -m email_processor joe@multifi.ai")
-        print("    python -m email_processor joezhoujinjing@gmail.com")
+        print("    python -m email_processor search \"trello\" --account joe@multifi.ai")
         sys.exit(1)
+
+    # Route to search subcommand
+    if sys.argv[1] == "search":
+        skill_root = _find_skill_root()
+        search(skill_root, sys.argv[2:])
+        return
 
     email = sys.argv[1]
     limit = int(sys.argv[2]) if len(sys.argv) > 2 else None

@@ -76,7 +76,6 @@ class FileStorage:
 
         email_file = email_dir / "email.json"
 
-        # Only write if not already stored
         if not email_file.exists():
             data = {
                 "message_id": email.message_id,
@@ -90,11 +89,24 @@ class FileStorage:
                 "date": email.date.isoformat(),
                 "snippet": email.snippet,
                 "body": email.body,
+                "attachments": email.attachments,
                 "labels": email.labels,
                 "first_seen": self.session_id,
                 "first_seen_at": datetime.now(self.tz).isoformat(),
             }
             email_file.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+        else:
+            # Backfill body/attachments if previously stored without them
+            existing = json.loads(email_file.read_text())
+            changed = False
+            if email.body and not existing.get("body"):
+                existing["body"] = email.body
+                changed = True
+            if email.attachments and not existing.get("attachments"):
+                existing["attachments"] = email.attachments
+                changed = True
+            if changed:
+                email_file.write_text(json.dumps(existing, indent=2, ensure_ascii=False))
 
     # --- Decision storage ---
 

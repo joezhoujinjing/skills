@@ -21,6 +21,9 @@ class Email:
     snippet: str
     body: Optional[str] = None
     labels: List[str] = field(default_factory=list)
+    attachments: List[dict] = field(default_factory=list)
+    # [{"filename": "invoice.pdf", "mimeType": "application/pdf",
+    #   "size": 12345, "attachmentId": "ANGjdJ..."}]
 
     fetched_at: datetime = field(default_factory=datetime.now)
 

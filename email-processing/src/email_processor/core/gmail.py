@@ -1,6 +1,7 @@
 """Gmail API client."""
 
 import sys
+import base64
 import subprocess
 import asyncio
 from pathlib import Path
@@ -117,8 +118,7 @@ class GmailClient:
                         self.service.users().messages().get(
                             userId="me",
                             id=msg["id"],
-                            format="metadata",
-                            metadataHeaders=["From", "To", "Cc", "Subject", "Date"]
+                            format="full"
                         ),
                         callback=make_callback(msg["id"], failed_ids)
                     )
@@ -143,8 +143,7 @@ class GmailClient:
                                 self.service.users().messages().get(
                                     userId="me",
                                     id=msg_id,
-                                    format="metadata",
-                                    metadataHeaders=["From", "To", "Cc", "Subject", "Date"]
+                                    format="full"
                                 ),
                                 callback=make_callback(msg_id, still_failed)
                             )
@@ -178,6 +177,10 @@ class GmailClient:
                 except:
                     date = datetime.now()
 
+                payload = message.get("payload", {})
+                body = self._extract_body(payload)
+                attachments = self._extract_attachments(payload)
+
                 email = Email(
                     message_id=msg["id"],
                     thread_id=message.get("threadId"),
@@ -188,7 +191,9 @@ class GmailClient:
                     subject=headers.get("Subject", "No Subject"),
                     date=date,
                     snippet=message.get("snippet", ""),
-                    labels=message.get("labelIds", [])
+                    body=body,
+                    labels=message.get("labelIds", []),
+                    attachments=attachments,
                 )
                 emails.append(email)
 
@@ -197,6 +202,51 @@ class GmailClient:
         except HttpError as e:
             print(f"\n❌ Gmail API error: {e}")
             return []
+
+    @staticmethod
+    def _extract_body(payload: dict) -> Optional[str]:
+        """Extract plain text body from a full message payload (recursive)."""
+        plain = []
+        html = []
+
+        def _walk(part):
+            mime = part.get("mimeType", "")
+            data = part.get("body", {}).get("data", "")
+            if data and mime.startswith("text/"):
+                try:
+                    decoded = base64.urlsafe_b64decode(data).decode("utf-8")
+                    if mime == "text/plain":
+                        plain.append(decoded)
+                    elif mime == "text/html":
+                        html.append(decoded)
+                except Exception:
+                    pass
+            for sub in part.get("parts", []):
+                _walk(sub)
+
+        _walk(payload)
+        return plain[0] if plain else (html[0] if html else None)
+
+    @staticmethod
+    def _extract_attachments(payload: dict) -> list[dict]:
+        """Extract attachment references from a full message payload (recursive)."""
+        attachments = []
+
+        def _walk(part):
+            filename = part.get("filename", "")
+            attachment_id = part.get("body", {}).get("attachmentId")
+            if filename and attachment_id:
+                attachments.append({
+                    "filename": filename,
+                    "mimeType": part.get("mimeType", ""),
+                    "size": part.get("body", {}).get("size", 0),
+                    "attachmentId": attachment_id,
+                })
+            for sub in part.get("parts", []):
+                _walk(sub)
+
+        _walk(payload)
+        return attachments
 
     async def archive_batch(self, message_ids: List[str], batch_size: int = 100):
         """Archive multiple emails in batches."""
@@ -252,35 +302,3 @@ class GmailClient:
             print(f"❌ Error counting inbox: {e}")
             return 0
 
-    def get_email_body(self, message_id: str) -> str:
-        """Fetch full email body."""
-        self._init_service()
-
-        try:
-            message = self.service.users().messages().get(
-                userId="me",
-                id=message_id,
-                format="full"
-            ).execute()
-
-            # Extract body (simplified - handle multipart in production)
-            payload = message.get("payload", {})
-            body_data = payload.get("body", {}).get("data", "")
-
-            if body_data:
-                import base64
-                return base64.urlsafe_b64decode(body_data).decode('utf-8')
-
-            # Try parts
-            parts = payload.get("parts", [])
-            for part in parts:
-                if part.get("mimeType") == "text/plain":
-                    data = part.get("body", {}).get("data", "")
-                    if data:
-                        import base64
-                        return base64.urlsafe_b64decode(data).decode('utf-8')
-
-            return "[No body content]"
-
-        except Exception as e:
-            return f"[Error fetching body: {e}]"
