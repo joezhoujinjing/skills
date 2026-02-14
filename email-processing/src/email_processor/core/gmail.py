@@ -285,20 +285,33 @@ class GmailClient:
         """Archive a single email."""
         await self.archive_batch([message_id])
 
-    async def count_inbox(self) -> int:
-        """Count emails in inbox."""
+    async def count_inbox(self) -> dict:
+        """Count emails: Inbox (Total) and Global Unread."""
         self._init_service()
 
         try:
-            results = self.service.users().messages().list(
+            # 1. Total emails in Inbox (ignoring unread status)
+            inbox_results = self.service.users().messages().list(
                 userId="me",
                 q="in:inbox",
                 maxResults=1
             ).execute()
+            inbox_total = inbox_results.get("resultSizeEstimate", 0)
 
-            return results.get("resultSizeEstimate", 0)
+            # 2. Global Unread (anywhere in the mailbox)
+            unread_results = self.service.users().messages().list(
+                userId="me",
+                q="is:unread",
+                maxResults=1
+            ).execute()
+            global_unread = unread_results.get("resultSizeEstimate", 0)
+
+            return {
+                "inbox_total": inbox_total,
+                "global_unread": global_unread
+            }
 
         except HttpError as e:
-            print(f"❌ Error counting inbox: {e}")
-            return 0
+            print(f"❌ Error counting emails: {e}")
+            return {"inbox_total": 0, "global_unread": 0}
 
