@@ -24,6 +24,7 @@ Pattern: `{service}-{component}-{secret-type}` (hyphen-separated)
 Google Secret Manager requires names to match `[a-zA-Z_0-9]+` (letters, numbers, underscores, hyphens only - no slashes).
 
 Examples:
+
 - `agents-api-client-openai-key`
 - `agents-database-connection-string`
 - `shared-godaddy-dns-api-key`
@@ -32,6 +33,7 @@ Examples:
 ## Commands
 
 ### `/secret-vault auth-status`
+
 Check authentication setup and current GCP project.
 
 ```bash
@@ -39,6 +41,7 @@ bash scripts/check-auth.sh
 ```
 
 ### `/secret-vault get <name>`
+
 Retrieve secret value. Never log the value, only the name.
 
 ```bash
@@ -46,11 +49,13 @@ gcloud secrets versions access latest --secret="<name>"
 ```
 
 Example:
+
 ```bash
 /secret-vault get agents-api-client-openai-key
 ```
 
 ### `/secret-vault list [prefix]`
+
 List secrets, optionally filtered by prefix.
 
 ```bash
@@ -62,6 +67,7 @@ gcloud secrets list --format="table(name,createTime,updateTime)" | grep "<prefix
 ```
 
 Examples:
+
 ```bash
 /secret-vault list
 /secret-vault list agents-
@@ -70,6 +76,7 @@ Examples:
 ```
 
 ### `/secret-vault set <name> <value>`
+
 Create or update a secret. Always confirm with user before executing.
 
 ```bash
@@ -84,12 +91,14 @@ fi
 ```
 
 Example:
+
 ```bash
 /secret-vault set agents-api-client-openai-key "sk-..."
 /secret-vault set shared-godaddy-dns-api-key "your-api-key"
 ```
 
 ### `/secret-vault delete <name>`
+
 Permanently delete a secret (irreversible). Require strong user confirmation.
 
 ```bash

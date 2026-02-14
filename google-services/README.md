@@ -14,6 +14,7 @@ pip install -r requirements.txt
 ### 2. Verify OAuth Credentials
 
 Ensure you have the following secrets in secret-vault:
+
 - `NEXUS_OAUTH_GOOGLE_CLIENT_ID`
 - `NEXUS_OAUTH_GOOGLE_CLIENT_SECRET`
 - `google-all-services-refresh-token-joezhoujinjing-gmail-com` (or your refresh token)
@@ -34,6 +35,7 @@ python scripts/calendar_api.py list-events
 ## Available Services
 
 This skill provides access to:
+
 - **Gmail**: Read, search, send emails
 - **Google Drive**: List, search, upload, download files
 - **Google Calendar**: Manage events
@@ -166,12 +168,15 @@ python scripts/gmail_api.py list --refresh-token-secret "your-custom-token-secre
 ## Troubleshooting
 
 ### "Invalid grant" error
+
 Your refresh token may have expired. Generate a new one using the google-oauth skill.
 
 ### "Insufficient permissions" error
+
 Ensure your OAuth token was created with all required scopes. Use the google-oauth skill to generate a token with full access.
 
 ### "Module not found" error
+
 Install dependencies: `pip install -r requirements.txt`
 
 ## References

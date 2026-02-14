@@ -2,7 +2,11 @@
 name: trello
 description: Manage Trello boards, lists, and cards via the Trello REST API.
 homepage: https://developer.atlassian.com/cloud/trello/rest/
-metadata: {"clawdbot":{"emoji":"📋","requires":{"bins":["jq"],"env":["TRELLO_API_KEY","TRELLO_TOKEN"]}}}
+metadata:
+  {
+    "clawdbot":
+      { "emoji": "📋", "requires": { "bins": ["jq"], "env": ["TRELLO_API_KEY", "TRELLO_TOKEN"] } },
+  }
 ---
 
 # Trello Skill
@@ -18,12 +22,14 @@ Manage Trello boards, lists, and cards via Trello REST API.
 ## Usage
 
 Retrieve credentials first:
+
 ```bash
 TRELLO_API_KEY=$(gcloud secrets versions access latest --secret="trello-api-key")
 TRELLO_TOKEN=$(gcloud secrets versions access latest --secret="trello-token")
 ```
 
 ### Boards
+
 ```bash
 # List boards
 curl -s "https://api.trello.com/1/members/me/boards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | {name, id, url}'
@@ -39,12 +45,14 @@ curl -s "https://api.trello.com/1/boards/{boardId}/members?key=$TRELLO_API_KEY&t
 ```
 
 ### Lists
+
 ```bash
 # List lists in board
 curl -s "https://api.trello.com/1/boards/{boardId}/lists?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | {name, id}'
 ```
 
 ### Cards
+
 ```bash
 # List cards in list
 curl -s "https://api.trello.com/1/lists/{listId}/cards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | {name, id, desc}'

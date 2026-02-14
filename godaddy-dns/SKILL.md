@@ -10,6 +10,7 @@ Manage DNS records for GoDaddy-hosted domains using the GoDaddy API v1.
 ## Configuration
 
 Get API credentials from secret-vault skill:
+
 - `/secret-vault get shared-godaddy-dns-api-key`
 - `/secret-vault get shared-godaddy-dns-api-secret`
 

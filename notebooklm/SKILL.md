@@ -100,17 +100,20 @@ python3 scripts/query.py <notebook_id> --question "What are the key points?"
 ## Available Scripts
 
 ### Notebook Management
+
 - `list_notebooks.py` - List all notebooks
 - `create_notebook.py --title <title>` - Create new notebook
 - `query.py <notebook_id> --question <question>` - Ask a question
 
 ### Source Management
+
 - `add_source.py <notebook_id> --url <url>` - Add URL/YouTube source
 - `add_source.py <notebook_id> --text <text> --title <title>` - Add text source
 - `add_source.py <notebook_id> --file <path>` - Upload local file
 - `list_sources.py <notebook_id>` - List all sources
 
 ### Options
+
 - `--json` - Output as JSON
 - `--wait` - Wait for source processing to complete (for add_source)
 
@@ -161,6 +164,7 @@ client.close()
 The vendored `notebooklm_tools.core.client.NotebookLMClient` provides:
 
 ### Notebook Operations (NotebookMixin)
+
 - `list_notebooks()` - List all notebooks with metadata
 - `get_notebook(notebook_id)` - Get notebook details
 - `get_notebook_summary(notebook_id)` - Get AI-generated summary
@@ -170,6 +174,7 @@ The vendored `notebooklm_tools.core.client.NotebookLMClient` provides:
 - `delete_notebook(notebook_id)` - Delete notebook (permanent!)
 
 ### Source Operations (SourceMixin)
+
 - `add_url_source(notebook_id, url, title)` - Add URL or YouTube video
 - `add_text_source(notebook_id, text, title)` - Add pasted text snippet
 - `add_drive_source(notebook_id, drive_id)` - Add Google Drive file
@@ -180,11 +185,13 @@ The vendored `notebooklm_tools.core.client.NotebookLMClient` provides:
 - `wait_for_source_ready(notebook_id, source_id, timeout)` - Wait for processing
 
 ### Conversation Operations (ConversationMixin)
+
 - `query(notebook_id, question)` - Ask a question
 - `get_conversation_history(notebook_id)` - Get chat history
 - `clear_conversation(notebook_id)` - Clear chat
 
 ### Studio Operations (StudioMixin)
+
 - `create_audio_overview(notebook_id)` - Generate audio overview
 - `create_study_guide(notebook_id)` - Generate study guide
 - `create_briefing_doc(notebook_id)` - Generate briefing document
@@ -229,19 +236,24 @@ python3 scripts/query.py "$NOTEBOOK_ID" --question "What are the key differences
 ## Troubleshooting
 
 ### Submodule not initialized
+
 ```bash
 cd ~/.claude/skills/notebooklm
 git submodule update --init --recursive
 ```
 
 ### Import errors
+
 Make sure `httpx` is installed:
+
 ```bash
 pip install httpx
 ```
 
 ### Authentication errors
+
 Re-export cookies from browser:
+
 ```bash
 source ~/.claude/skills/ai-browser/tools/jarvis.sh
 jarvis_cookies_save

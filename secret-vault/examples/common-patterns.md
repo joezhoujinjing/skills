@@ -98,6 +98,7 @@ When an agent needs to call an external API:
 ```
 
 Example agent workflow:
+
 ```bash
 # Step 1: Retrieve the API key
 API_KEY=$(/secret-vault get agents/api-client/openai-key)
@@ -206,12 +207,14 @@ test/                            # Test/development secrets
 ### Naming Guidelines
 
 **DO:**
+
 - ✅ Use lowercase with hyphens: `api-key`, `service-account`
 - ✅ Be descriptive: `openai-api-key` not `key1`
 - ✅ Follow the pattern: `{service}/{component}/{secret-type}`
 - ✅ Group related secrets: `agents/chatbot/*`
 
 **DON'T:**
+
 - ❌ Use spaces or special characters: `my secret key`
 - ❌ Use generic names: `secret1`, `password`
 - ❌ Mix naming styles: `camelCase`, `snake_case`
@@ -222,12 +225,14 @@ test/                            # Test/development secrets
 ### 1. Never Log Secret Values
 
 **BAD:**
+
 ```bash
 SECRET=$(/secret-vault get agents/api-key)
 echo "Retrieved secret: $SECRET"  # NEVER DO THIS
 ```
 
 **GOOD:**
+
 ```bash
 SECRET=$(/secret-vault get agents/api-key)
 echo "✓ Successfully retrieved secret: agents/api-key"
@@ -265,11 +270,13 @@ gcloud projects add-iam-policy-binding PROJECT_ID \
 ### 4. Use Descriptive Names (Not Values)
 
 **BAD:**
+
 ```bash
 /secret-vault set agents/prod-db "password123"  # Leaks environment
 ```
 
 **GOOD:**
+
 ```bash
 # Keep environment in project structure, not secret names
 /secret-vault set agents/database/password "password123"

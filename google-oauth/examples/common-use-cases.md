@@ -9,6 +9,7 @@ Full access to Gmail, Drive, Docs, Sheets, Slides, Calendar, Forms, and Chat:
 ```
 
 Store the token:
+
 ```bash
 /secret-vault set google-all-services-refresh-token-user@example.com "YOUR_TOKEN"
 ```
@@ -16,16 +17,19 @@ Store the token:
 ## Single Services
 
 ### Gmail
+
 ```bash
 /google-oauth get-token "https://mail.google.com/" --port 8085
 ```
 
 ### Drive
+
 ```bash
 /google-oauth get-token "https://www.googleapis.com/auth/drive" --port 8085
 ```
 
 ### Calendar
+
 ```bash
 /google-oauth get-token "https://www.googleapis.com/auth/calendar" --port 8085
 ```
@@ -33,11 +37,13 @@ Store the token:
 ## Service Combinations
 
 ### Gmail + Drive + Calendar
+
 ```bash
 /google-oauth get-token "https://mail.google.com/ https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/calendar" --port 8085
 ```
 
 ### Google Workspace (Docs, Sheets, Slides)
+
 ```bash
 /google-oauth get-token "https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/presentations" --port 8085
 ```
@@ -45,11 +51,13 @@ Store the token:
 ## Setup Checklist
 
 Before running:
+
 1. ✅ Add `http://localhost:8085/` to OAuth client redirect URIs
 2. ✅ Enable required APIs in Google Cloud Console
 3. ✅ Configure OAuth consent screen with required scopes
 
 After getting token:
+
 1. Store in secret-vault with email identifier
 2. Test the token with a simple API call
 3. Document which scopes were authorized

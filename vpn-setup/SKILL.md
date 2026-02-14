@@ -60,6 +60,7 @@ sudo ./openvpn-install.sh
 ```
 
 Follow the prompts:
+
 - Protocol: UDP (or TCP if disguising as HTTPS)
 - Port: 1194 (or 443)
 - DNS: Cloudflare or Google
@@ -84,6 +85,7 @@ brew install --cask tunnelblick
 ```
 
 After installation:
+
 1. Double-click the `.ovpn` file to import
 2. Click "Only Me" when prompted
 3. Click the Tunnelblick icon in menu bar → Connect

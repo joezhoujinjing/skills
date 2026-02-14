@@ -26,6 +26,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 ## Available Services
 
 ### Gmail
+
 - List messages (inbox, sent, drafts)
 - Search emails by query
 - Read email content
@@ -35,6 +36,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 - Mark as read/unread
 
 ### Google Drive
+
 - List files and folders
 - Search files
 - Download files
@@ -45,6 +47,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 - Delete files
 
 ### Google Docs
+
 - Create documents
 - Read document content
 - Update document content
@@ -52,6 +55,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 - Insert images/tables
 
 ### Google Sheets
+
 - Create spreadsheets
 - Read cell data
 - Update cells
@@ -60,6 +64,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 - Manage worksheets
 
 ### Google Calendar
+
 - List calendars
 - List events
 - Create events
@@ -68,6 +73,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 - Search events
 
 ### Google Slides
+
 - Create presentations
 - Read slides
 - Update slides
@@ -75,6 +81,7 @@ pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-pyt
 - Format elements
 
 ### Google Forms
+
 - List forms
 - Get form structure
 - Read responses
@@ -222,6 +229,7 @@ python scripts/sheets_api.py update abc123 \
 ## Configuration
 
 All scripts automatically use OAuth credentials from secret-vault:
+
 - `NEXUS_OAUTH_GOOGLE_CLIENT_ID`
 - `NEXUS_OAUTH_GOOGLE_CLIENT_SECRET`
 - Refresh token (specify via `--refresh-token-secret` or set default in script)
@@ -231,21 +239,25 @@ Default refresh token secret name: `google-all-services-refresh-token-joezhoujin
 ## Common Use Cases
 
 ### Check unread emails
+
 ```bash
 /google-services gmail search "is:unread"
 ```
 
 ### Find recent PDFs in Drive
+
 ```bash
 /google-services drive search "mimeType='application/pdf' modifiedTime > '2026-01-01'"
 ```
 
 ### List today's calendar events
+
 ```bash
 /google-services calendar list-events --max-results 20
 ```
 
 ### Create a meeting note
+
 ```bash
 /google-services docs create --title "Meeting Notes - $(date +%Y-%m-%d)"
 ```
