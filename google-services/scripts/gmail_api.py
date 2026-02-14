@@ -353,12 +353,16 @@ def main():
     parser.add_argument("--bcc", help="BCC recipients")
     parser.add_argument("--reply-all", action="store_true", help="Reply to all recipients")
     parser.add_argument("--refresh-token-secret", help="Secret name for refresh token")
+    parser.add_argument("--email", help="Email address to resolve secret name from")
 
     args = parser.parse_args()
 
     # Get credentials
-    print_auth_info("Gmail")
-    credentials = get_credentials(refresh_token_secret=args.refresh_token_secret)
+    print_auth_info("Gmail", email_address=args.email)
+    credentials = get_credentials(
+        refresh_token_secret=args.refresh_token_secret,
+        email_address=args.email
+    )
 
     # Build Gmail service
     service = build("gmail", "v1", credentials=credentials)

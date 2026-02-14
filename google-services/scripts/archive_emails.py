@@ -17,10 +17,11 @@ def archive_message(service, message_id):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("message_ids", nargs="+", help="Message IDs to archive")
+    parser.add_argument("--email", help="Email address to resolve secret name from")
     args = parser.parse_args()
 
     try:
-        credentials = get_credentials()
+        credentials = get_credentials(email_address=args.email)
         service = build("gmail", "v1", credentials=credentials)
         
         for mid in args.message_ids:
