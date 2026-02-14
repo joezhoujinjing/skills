@@ -67,24 +67,14 @@
     "joe@multifi.ai": {
       "gmail_refresh_token": "gsm:google-all-services-refresh-token-joe-multifi-ai",
       "default_trello_board": "multifi",
-      "internal_domains": [
-        "multifi.ai"
-      ],
-      "projects": [
-        "nexus",
-        "clinview",
-        "huiya"
-      ]
+      "internal_domains": ["multifi.ai"],
+      "projects": ["nexus", "clinview", "huiya"]
     },
     "joezhoujinjing@gmail.com": {
       "gmail_refresh_token": "gsm:google-all-services-refresh-token-joezhoujinjing-gmail-com",
       "default_trello_board": "personal",
       "internal_domains": [],
-      "projects": [
-        "nexus",
-        "clinview",
-        "huiya"
-      ]
+      "projects": ["nexus", "clinview", "huiya"]
     }
   }
 }

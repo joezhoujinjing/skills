@@ -3,7 +3,6 @@ version: 2.0
 
 # Rule categories (processed in priority order)
 categories:
-
   # Priority 0: URGENT - Always flag for review
   urgent:
     priority: 0
@@ -381,4 +380,4 @@ learned_rules: []
 
 # Settings
 settings:
-  learning_threshold: 3  # Suggest rule after 3 similar actions
+  learning_threshold: 3 # Suggest rule after 3 similar actions
