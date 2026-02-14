@@ -66,4 +66,7 @@ file_bytes = base64.urlsafe_b64decode(data['data'])
 1. Run the command for your email account
 2. System auto-archives and creates Trello cards
 3. Review flagged emails with index-based UI
-4. Achieve inbox zero
+4. Monitor counts:
+   - **Inbox (Total)**: All emails currently in your inbox (your target for Inbox Zero).
+   - **Global Unread**: All unread emails across your entire mailbox (including those outside the Inbox).
+5. Achieve inbox zero

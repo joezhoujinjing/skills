@@ -30,19 +30,33 @@ def get_secret(secret_name):
         sys.exit(1)
 
 
-def get_credentials(refresh_token_secret=None, scopes=None):
+def get_refresh_token_secret_for_email(email_address):
+    """Resolve the secret name based on the email address."""
+    if not email_address:
+        return DEFAULT_REFRESH_TOKEN_SECRET
+    
+    # Normalize email: replace '@' and '.' with '-' for secret name convention
+    normalized = email_address.lower().replace("@", "-").replace(".", "-")
+    return f"google-all-services-refresh-token-{normalized}"
+
+
+def get_credentials(refresh_token_secret=None, scopes=None, email_address=None):
     """
     Get Google API credentials using OAuth refresh token.
 
     Args:
         refresh_token_secret: Name of secret containing refresh token
         scopes: List of OAuth scopes (optional, for reference)
+        email_address: Optional email to resolve secret name from
 
     Returns:
         google.oauth2.credentials.Credentials object
     """
     if refresh_token_secret is None:
-        refresh_token_secret = DEFAULT_REFRESH_TOKEN_SECRET
+        if email_address:
+            refresh_token_secret = get_refresh_token_secret_for_email(email_address)
+        else:
+            refresh_token_secret = DEFAULT_REFRESH_TOKEN_SECRET
 
     # Retrieve OAuth credentials from secret-vault
     client_id = get_secret(DEFAULT_CLIENT_ID_SECRET)
@@ -65,7 +79,8 @@ def get_credentials(refresh_token_secret=None, scopes=None):
     return credentials
 
 
-def print_auth_info(service_name):
+def print_auth_info(service_name, email_address=None):
     """Print authentication info for debugging."""
+    secret_name = get_refresh_token_secret_for_email(email_address) if email_address else DEFAULT_REFRESH_TOKEN_SECRET
     print(f"🔐 Authenticating with Google {service_name} API...")
-    print(f"   Using refresh token from: {DEFAULT_REFRESH_TOKEN_SECRET}")
+    print(f"   Using refresh token from: {secret_name}")

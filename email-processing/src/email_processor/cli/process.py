@@ -232,8 +232,12 @@ class EmailProcessor:
         print(f"  📁 Saved to: {self.storage.sessions_dir}")
 
         # Check inbox status
-        remaining = await self.gmail.count_inbox()
-        if remaining == 0:
+        counts = await self.gmail.count_inbox()
+        print("\n📊 EMAIL STATUS REPORT")
+        print(f"   ├─ Inbox (Total): {counts['inbox_total']}")
+        print(f"   └─ Global Unread: {counts['global_unread']}")
+
+        if counts['inbox_total'] == 0:
             print("\n🎉 INBOX ZERO ACHIEVED! 🎉")
         else:
-            print(f"\n📮 {remaining} emails remaining in inbox")
+            print(f"\n📮 {counts['inbox_total']} emails remaining in inbox")
