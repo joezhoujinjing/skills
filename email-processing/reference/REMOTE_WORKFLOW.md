@@ -25,9 +25,10 @@ After running automated processing, you can work with Claude to handle the revie
 
 **You:** "Process my emails using the email-processing skill"
 
-**Claude:** *Runs export_unprocessed.py and process_emails_automated.py*
+**Claude:** _Runs export_unprocessed.py and process_emails_automated.py_
 
 **Claude:** "I've processed 45 emails:
+
 - 32 auto-archived (newsletters, notifications)
 - 13 need your review (saved to data/emails_to_review.yaml)
 
@@ -35,7 +36,7 @@ Let me show you the priority items..."
 
 **You:** "Show me the urgent ones first"
 
-**Claude:** *Reads data/emails_to_review.yaml and shows urgent emails*
+**Claude:** _Reads data/emails_to_review.yaml and shows urgent emails_
 
 "Here are 3 urgent emails:
 
@@ -49,7 +50,7 @@ Let me show you the priority items..."
 
 **You:** "Create a Trello card for #1, archive the rest"
 
-**Claude:** *Executes create_trello_card.py for email #1, archives others*
+**Claude:** _Executes create_trello_card.py for email #1, archives others_
 
 ## Commands for Claude
 
@@ -80,6 +81,7 @@ cp processing_rules.yaml.example processing_rules.yaml
 ```
 
 Rules you can customize:
+
 - Auto-archive domains (add your newsletter sources)
 - Always-review domains (add your company domain)
 - Urgent keywords
@@ -109,6 +111,7 @@ The skill is designed to work seamlessly with Claude Code:
 4. **Contextual help** - Claude sees full email context and can draft replies
 
 This gives you the best of both worlds:
+
 - Automation handles the noise (newsletters, notifications)
 - Claude helps with decisions on important emails
 - You review and approve Claude's suggestions remotely

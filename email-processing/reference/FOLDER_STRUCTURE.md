@@ -38,17 +38,20 @@ email-processing/
 ## Why This Structure?
 
 ### scripts/
+
 - All executable Python scripts in one place
 - Easy to find and run scripts
 - Clear separation from documentation
 
 ### data/
+
 - All email dumps and personal data isolated
 - Everything in this folder is gitignored (except examples)
 - Safe from accidental commits
 - Easy to clean up (`rm -rf data/*.yaml`)
 
 ### reference/
+
 - Supporting documentation that isn't primary
 - Workflow guides and examples
 - Architecture documentation

@@ -17,6 +17,7 @@ python scripts/export_unprocessed.py --verify  # 4. Verify inbox zero
 ```
 
 **What it does:**
+
 - Auto-archives: newsletters, notifications, receipts, calendar invites
 - Saves for review: urgent emails, internal emails, direct messages
 - Creates: `data/emails_to_review.yaml` with suggested actions
@@ -35,6 +36,7 @@ python scripts/export_unprocessed.py --verify   # 4. Verify inbox zero
 ## Files Overview
 
 ### Main Scripts
+
 - `export_unprocessed.py` - Fetch emails from Gmail to YAML
 - `process_emails_automated.py` - **Auto-process with rules (remote mode)**
 - `process_emails_interactive.py` - Interactive one-by-one processing
@@ -42,16 +44,19 @@ python scripts/export_unprocessed.py --verify   # 4. Verify inbox zero
 - `process_emails_gtd.py` - Analysis and recommendations
 
 ### Supporting Scripts
+
 - `send_reply.py` - Quick reply to emails
 - `create_trello_card.py` - Create Trello cards from emails
 - `batch_archive_by_category.py` - Batch archive by category
 - `show_urgent_emails.py` - Show only urgent emails
 
 ### Configuration
+
 - `processing_rules.yaml.example` - Customizable processing rules
 - `.gitignore` - Excludes email dumps from git
 
 ### Documentation
+
 - `SKILL.md` - Full skill documentation with both workflows
 - `REMOTE_WORKFLOW.md` - Guide for remote processing with Claude
 - `README.md` - This file
@@ -63,6 +68,7 @@ Just ask Claude:
 > "Process my emails"
 
 Claude will:
+
 1. Run the automated workflow
 2. Show you what was processed
 3. Present emails needing your review
@@ -90,6 +96,7 @@ cp processing_rules.yaml.example processing_rules.yaml
 ## Integration
 
 Works with:
+
 - Gmail API (via google-services skill)
 - Trello API (via trello skill)
 - Claude Code for remote control

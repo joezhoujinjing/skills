@@ -52,7 +52,7 @@ def get_unprocessed_emails(service, max_results=None):
             params = {
                 "userId": "me",
                 "maxResults": 500,  # Max per page
-                "q": "is:unread in:inbox"  # Only unread messages in inbox
+                "q": "in:inbox"  # All messages in inbox (read or unread)
             }
             if page_token:
                 params["pageToken"] = page_token

@@ -69,6 +69,7 @@ python scripts/create_trello_card.py --message-id {message_id} \
 ```
 
 **Card format** (auto-generated):
+
 ```
 ## Email Context
 - From: {sender}
@@ -87,10 +88,12 @@ python scripts/create_trello_card.py --message-id {message_id} \
 ### Choose Your Workflow
 
 **Interactive Mode** (local/manual processing)
+
 - Best for: First time, weekly reviews, when you want full control
 - Time required: 30-60 minutes
 
 **Automated Mode** (remote/headless processing)
+
 - Best for: Daily processing, remote control via Claude Code
 - Time required: 5-10 minutes review time
 
@@ -101,39 +104,49 @@ python scripts/create_trello_card.py --message-id {message_id} \
 Follow this 4-step process to achieve inbox zero:
 
 **Step 1: Collect All Inbox Emails**
+
 ```bash
 python scripts/export_unprocessed.py
 ```
+
 - Fetches all unread/inbox emails via Gmail API
 - Saves to `emails_dump.yaml` in skill directory (gitignored)
 - Creates backup with timestamp
 
 **Step 2: Analyze & Categorize**
+
 ```bash
 python scripts/process_emails_gtd.py
 ```
+
 - Analyzes email patterns (domain, category, urgency)
 - Shows quick wins (newsletters, notifications, receipts)
 - Highlights action-required and direct messages
 
 **Step 3: Interactive Processing**
+
 ```bash
 python scripts/process_emails_interactive.py
 ```
+
 For each email, choose:
+
 - **a) No reply needed** — Archive immediately
 - **b) Quick reply (<2 min)** — Reply via gmail_api.py, then archive
 - **c) Create Trello card (>2 min)** — Extract action, archive email
 
 The script walks through priority order:
+
 1. Urgent/action-required first
 2. Direct messages second
 3. Remaining emails by category
 
 **Step 4: Verify Inbox Zero**
+
 ```bash
 python scripts/export_unprocessed.py --verify
 ```
+
 - Confirms inbox is empty
 - Shows remaining count if any
 - Celebrates success 🎉
@@ -145,15 +158,19 @@ python scripts/export_unprocessed.py --verify
 Perfect for remote control via Claude Code or daily automation:
 
 **Step 1: Collect All Inbox Emails**
+
 ```bash
 python scripts/export_unprocessed.py
 ```
+
 Same as interactive mode - fetches all emails to `emails_dump.yaml`
 
 **Step 2: Automated Processing with Rules**
+
 ```bash
 python scripts/process_emails_automated.py
 ```
+
 - Automatically processes emails based on predefined rules:
   - **Auto-archive:** Newsletters, notifications, receipts, calendar invites
   - **Save for review:** Urgent, internal, direct messages
@@ -162,30 +179,37 @@ python scripts/process_emails_automated.py
 - Shows processing summary
 
 **Step 3: Review Priority Items**
+
 ```bash
 python process_review_list.py
 ```
+
 Or work with Claude Code to process `emails_to_review.yaml`:
+
 - For each email, Claude can help you decide:
   - Archive with no action
   - Draft and send quick replies
   - Create Trello cards with suggested actions
 
 **Step 4: Verify Inbox Zero**
+
 ```bash
 python scripts/export_unprocessed.py --verify
 ```
+
 Same verification step - confirms inbox is empty
 
 ### Processing Rules (Customizable)
 
 Default auto-archive rules in `process_emails_automated.py`:
+
 - **Newsletters:** substack.com, medium.com, beehiiv.com
 - **Notifications:** LinkedIn, GitHub, SaaS tools
 - **Receipts:** Stripe, Mercury, Bill.com
 - **Calendar:** All calendar invites (assuming already handled)
 
 Always requires review:
+
 - Urgent/action-required keywords
 - Internal emails (@multifi.ai)
 - Direct messages from people
