@@ -1,0 +1,384 @@
+# Structured Rule Engine Configuration
+version: 2.0
+
+# Rule categories (processed in priority order)
+categories:
+
+  # Priority 0: URGENT - Always flag for review
+  urgent:
+    priority: 0
+    action: review
+    rules:
+      - name: action_required_keywords
+        type: subject_contains
+        patterns:
+          - action required
+          - urgent
+          - deadline
+          - overdue
+          - approve
+          - approval needed
+          - signature
+          - sign now
+          - confirm your
+          - verify
+          - verification
+        case_sensitive: false
+
+      - name: time_sensitive_today
+        type: subject_regex
+        pattern: "(by|before) (today|eod|5pm|end of day)"
+
+      - name: important_senders_work
+        type: from_sender
+        account: joe@multifi.ai
+        patterns:
+          - no-reply@rippling.com
+          - legal@
+
+      - name: important_senders_personal
+        type: from_sender
+        account: joezhoujinjing@gmail.com
+        patterns:
+          - reenrollments@harker.org
+
+  # Priority 1: AUTO-TRELLO - Create card + archive
+  auto_trello:
+    priority: 1
+    action: trello
+    rules:
+      - name: contract_documents
+        type: subject_contains
+        patterns:
+          - contract
+          - agreement
+          - proposal
+          - NDA
+
+      - name: tax_documents
+        type: subject_contains
+        patterns:
+          - tax form
+          - w-2
+          - "1099"
+
+      - name: payroll_hr_actions
+        type: all_of
+        rules:
+          - type: from_domain
+            pattern: rippling.com
+          - type: subject_contains
+            patterns:
+              - payroll run
+              - benefits enrollment
+              - re-enrollment
+
+  # Priority 2: INTERNAL - Review if work account
+  internal:
+    priority: 2
+    action: review
+    account: joe@multifi.ai
+    rules:
+      - name: internal_domain
+        type: from_domain
+        pattern: multifi.ai
+        exceptions:
+          - type: subject_contains
+            patterns:
+              - weekly digest
+              - daily standup
+              - automated report
+
+  # Priority 5: AUTO-ARCHIVE - Safe to archive
+  auto_archive:
+    priority: 5
+    action: archive
+
+    subcategories:
+      newsletters:
+        - name: newsletter_domains
+          type: from_domain
+          patterns:
+            - substack.com
+            - medium.com
+            - beehiiv.com
+            - convertkit.com
+            - linkedin.com
+            - redditmail.com
+            - academia-mail.com
+            - news.cam.ac.uk
+            - kaggle.com
+            - educative.io
+            - insights.omdia.com
+            - about.nationalgeographic.com
+            - housecommunications.gov
+          exceptions:
+            - type: subject_contains
+              patterns:
+                - sent you a message
+                - connection request
+
+        - name: newsletter_keywords
+          type: subject_contains
+          patterns:
+            - weekly newsletter
+            - monthly newsletter
+            - monthly digest
+            - weekly digest
+            - weekly update
+            - daily brief
+            - unsubscribe
+
+      marketing:
+        - name: marketing_keywords
+          type: subject_contains
+          patterns:
+            - flash sale
+            - limited time offer
+            - special offer
+            - exclusive offer
+            - pre-approved
+            - apply now
+            - shop now
+            - last chance
+            - ends soon
+            - just dropped
+            - new arrival
+            - now available
+            - back in stock
+
+        - name: marketing_domains
+          type: from_domain
+          patterns:
+            # Food & Shopping
+            - doordash.com
+            - email.apple.com
+            - bose.com
+            - email.bose.com
+            - gopro.com
+            - nespresso.com
+            - email.nespresso.com
+            - ember.com
+            - rei.com
+            - email.rei.com
+            - sportsbasement.com
+            - e.frysmail.com
+            - davidoffgeneva.com
+            - news.davidoffgeneva.com
+            - wilson.com
+            - bloomnation.com
+            - squaremktg.com
+            - grammarly.com
+            - mail.grammarly.com
+            - email.chipotle.com
+            - vegamour.com
+            - bluebottlecoffee.com
+            - wedgwood.com
+            - wines.beringer.com
+            - beringer.com
+            # Travel & Events
+            - trivago.com
+            - tripadvisor.com
+            - trip.com
+            - newsletter.trip.com
+            - kayak.com
+            - travelzoo.com
+            - vividseats.com
+            - fandango.com
+            - ticketmaster.com
+            - amctheatres.com
+            - email-marriott.com
+            - hiltongrandvacations.com
+            - travel.hiltongrandvacations.com
+            - belmond.com
+            - vailresortsmail.com
+            - cruisedirect.com
+            - newsletter.cruisedirect.com
+            - hotels.com
+            - edm.kkday.com
+            - email.tripit.com
+            - h5.hilton.com
+            - marriott-vacations.com
+            - m.wynnlasvegas.com
+            - deals.vegas.com
+            - mirazur.fr
+            - opentable.com
+            - resy.com
+            - toasttab.com
+            # Tech & Services
+            - status.incident.io
+            - elevenlabs.io
+            - creditkarma.com
+            - updates.xfinity.com
+            - customer.verizon.com
+            - email.lucidmotors.com
+            - e.lucidmotors.com
+            - sales@e.lucidmotors.com
+            - robinhood.com
+            - ymcasv.org
+            - rs.email.nextdoor.com
+            - mail.warriors.com
+            - redfin.com
+            - vercel.com
+            - em1.turbotax.intuit.com
+            - email.westfield.com
+            - emcom.bankofamerica.com
+            - itr.mail.codecademy.com
+            - lifetouch.com
+            - veo.co
+            - grafana.com
+            - glassdoor.com
+            - welcome.americanexpress.com
+            - member.americanexpress.com
+            - soniox.com
+            - marketing.base44.com
+            - emails.bayclubs.com
+            - updates.ubisoft.com
+            - newsletter.2k.com
+            - marketing.id.me
+            - reply.etsy.com
+            - news.paypal.com
+            - marketing.unsplash.com
+            - unsplash.com
+            - email.legalzoom.com
+            - mail.coinbase.com
+            - hello.chamberlain.com
+            - skyrocketventures.com
+            - hirefrederick.com
+            - mail.hallow.com
+            - mail.musescore.com
+            - info.mail.amadeus.com
+            - e.affirm.com
+            - messaging.us.hsbc.com
+            - lindy.ai
+            - msmail.morganstanley.com
+            - e.godaddy.com
+            - godaddy.com
+            - thetravelinstitute.com
+            - m.hidrb.com
+            - ha.ucla.edu
+            - e.techsoup.org
+            - grandevault.com
+            - aws-marketing-email-replies@amazon.com
+            - namecheap.com
+            - wix.com
+            - adobe.com
+            - influencity.com
+            - poker.org
+            - evite.com
+            - pokemon.com
+            - nianticlabs.com
+            - golffacility.com
+            - supabase.com
+            - team.twilio.com
+
+      receipts:
+        - name: receipt_keywords
+          type: subject_contains
+          patterns:
+            - order confirmation
+            - your receipt
+            - receipt for
+            - payment confirmation
+            - booking confirmation
+            - reservation confirmed
+            - invoice from
+            - eticket
+
+        - name: receipt_domains
+          type: from_domain
+          patterns:
+            - stripe.com
+            - paypal.com
+            - uber.com
+            - doordash.com
+            - mercury.com
+            - united.com
+            - hotspotservice@telekom.de
+
+      notifications:
+        - name: notification_domains
+          type: from_domain
+          patterns:
+            - github.com
+            - service.tiktok.com
+            - googleplay-noreply@google.com
+            - noreply@wise.com
+            - noreply@yfmail.net
+            - yfmail.net
+          exceptions:
+            - type: subject_contains
+              patterns:
+                - mentioned you
+                - assigned to you
+
+        - name: notification_keywords
+          type: subject_contains
+          patterns:
+            - security alert
+            - login from
+            - friend suggestion
+            - people you may know
+            - in your phone contacts
+
+      financial:
+        - name: financial_notifications
+          type: subject_contains
+          patterns:
+            - statement available
+            - bill is ready
+            - autopay processed
+            - payment received
+            - refund issued
+            - credit usage
+            - score changed
+            - report available
+
+        - name: financial_domains
+          type: from_domain
+          patterns:
+            - no_reply@mcmap.chase.com
+            - mcmap.chase.com
+            - usbank.com
+            - notifications.usbank.com
+            - venmo.com
+
+      social:
+        - name: social_keywords
+          type: subject_contains
+          patterns:
+            - mentioned you in
+            - commented on
+            - "posted:"
+            - shared a link
+
+        - name: social_domains
+          type: from_domain
+          patterns:
+            - nfl.com
+            - veracross.com
+            - teamsnap.com
+            - bayareachess.com
+            - camp@frostscience.org
+
+      calendar:
+        - name: calendar_invites
+          type: any_of
+          rules:
+            - type: subject_contains
+              patterns:
+                - calendar invite
+                - invitation
+                - event reminder
+                - "accepted:"
+                - "declined:"
+            - type: from_domain
+              patterns:
+                - calendar-notification@google.com
+
+# Learned rules storage (programmatically updated)
+learned_rules: []
+
+# Settings
+settings:
+  learning_threshold: 3  # Suggest rule after 3 similar actions

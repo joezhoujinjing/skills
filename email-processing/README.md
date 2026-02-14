@@ -1,117 +1,99 @@
-# Email Processing Skill
+# Email Processing
 
-GTD-based email processing system with both interactive and automated workflows.
+GTD-based email triage with LLM intelligence, rule engine, and Trello integration.
 
-## Quick Start
-
-### For Remote/Automated Processing (Recommended)
+## Usage
 
 ```bash
-cd ~/.claude/skills/email-processing
+# Run from the skill root (directory containing SKILL.md)
 
-# Full automated workflow
-python scripts/export_unprocessed.py          # 1. Fetch emails
-python scripts/process_emails_automated.py     # 2. Auto-process with rules
-# 3. Review data/emails_to_review.yaml (with Claude's help)
-python scripts/export_unprocessed.py --verify  # 4. Verify inbox zero
+# Process emails
+PYTHONPATH=src:$PYTHONPATH python3 -m email_processor joe@multifi.ai
+
+# Limit to N emails
+PYTHONPATH=src:$PYTHONPATH python3 -m email_processor joe@multifi.ai 10
 ```
 
-**What it does:**
+## How It Works
 
-- Auto-archives: newsletters, notifications, receipts, calendar invites
-- Saves for review: urgent emails, internal emails, direct messages
-- Creates: `data/emails_to_review.yaml` with suggested actions
+1. **Fetch** emails from Gmail inbox (batch API)
+2. **Rules engine** handles routine emails (~80%): newsletters, receipts, notifications
+3. **LLM triage** (Gemini 3 Flash) categorizes ambiguous emails (~20%)
+4. **Auto-actions**: archive low-value, create Trello cards for tasks
+5. **Interactive review**: index-based UI for remaining emails
+6. **File storage**: all emails and decisions saved to `data/`
 
-### For Interactive Processing (Manual)
+## Project Structure
 
-```bash
-cd ~/.claude/skills/email-processing
-
-python scripts/export_unprocessed.py           # 1. Fetch emails
-python scripts/process_emails_gtd.py            # 2. See analysis
-python scripts/process_emails_interactive.py    # 3. Process one-by-one
-python scripts/export_unprocessed.py --verify   # 4. Verify inbox zero
+```
+email-processing/
+  config/
+    config.json          # All settings (accounts, LLM, Trello, storage)
+    rules.yaml           # Rule engine patterns
+  src/email_processor/
+    __main__.py           # CLI entry point
+    models/email.py       # Email, TriageDecision, ReviewItem
+    core/
+      gmail.py            # Gmail API (batch fetch, archive)
+      rules_engine.py     # Structured rule matching
+      llm_triage.py       # LangChain + Gemini structured output
+      trello.py           # Multi-board routing (LLM-driven)
+      secrets.py          # gsm: prefix for Google Secret Manager
+    storage/
+      file_storage.py     # Date-organized file storage
+    cli/
+      process.py          # Main orchestrator
+      review.py           # Interactive review interface
+  data/                   # Runtime data (gitignored)
+    <account>/
+      emails/<YYYY-MM-DD>/<message_id>/
+      sessions/<session_id>/
+      index/
 ```
 
-## Files Overview
+## Configuration
 
-### Main Scripts
+All in `config/config.json`. Secrets use `gsm:` prefix to fetch from Google Secret Manager, or raw values directly.
 
-- `export_unprocessed.py` - Fetch emails from Gmail to YAML
-- `process_emails_automated.py` - **Auto-process with rules (remote mode)**
-- `process_emails_interactive.py` - Interactive one-by-one processing
-- `process_review_list.py` - Process the review list interactively
-- `process_emails_gtd.py` - Analysis and recommendations
-
-### Supporting Scripts
-
-- `send_reply.py` - Quick reply to emails
-- `create_trello_card.py` - Create Trello cards from emails
-- `batch_archive_by_category.py` - Batch archive by category
-- `show_urgent_emails.py` - Show only urgent emails
-
-### Configuration
-
-- `processing_rules.yaml.example` - Customizable processing rules
-- `.gitignore` - Excludes email dumps from git
-
-### Documentation
-
-- `SKILL.md` - Full skill documentation with both workflows
-- `REMOTE_WORKFLOW.md` - Guide for remote processing with Claude
-- `README.md` - This file
-
-## Using with Claude Code
-
-Just ask Claude:
-
-> "Process my emails"
-
-Claude will:
-
-1. Run the automated workflow
-2. Show you what was processed
-3. Present emails needing your review
-4. Help you draft replies or create Trello cards
-5. Verify inbox zero
-
-See `REMOTE_WORKFLOW.md` for detailed examples.
-
-## Customization
-
-Copy the example rules and customize:
-
-```bash
-cp processing_rules.yaml.example processing_rules.yaml
-# Edit with your domains, keywords, etc.
+```json
+{
+  "llm": {
+    "api_key": "gsm:nexus-hub-google-api-key"
+  },
+  "accounts": {
+    "joe@multifi.ai": {
+      "gmail_refresh_token": "gsm:google-all-services-refresh-token-joe-multifi-ai",
+      "default_trello_board": "multifi"
+    }
+  },
+  "trello": {
+    "credentials": {
+      "api_key": "gsm:trello-api-key",
+      "token": "gsm:trello-token"
+    }
+  }
+}
 ```
 
-## Output Files (gitignored)
+## Trello Boards
 
-- `data/emails_dump.yaml` - Raw email data from Gmail
-- `data/emails_to_review.yaml` - Emails needing manual review
-- `emails_for_trello.yaml` - Suggested Trello cards
-- `~/email_triage/unread_emails_*.yaml` - Timestamped backups
+6 boards, always selected by LLM:
+**multifi** | **personal** | **nexus** | **clinview** | **huiya** | **inbox** (catch-all)
 
-## Integration
+## Review Commands
 
-Works with:
-
-- Gmail API (via google-services skill)
-- Trello API (via trello skill)
-- Claude Code for remote control
-
-## Daily Routine (5 minutes)
-
-```bash
-# Morning - automated triage
-python scripts/export_unprocessed.py && python scripts/process_emails_automated.py
-
-# Ask Claude: "Show me my priority emails"
-# Claude helps you decide on each one
-
-# Verify
-python scripts/export_unprocessed.py --verify
+```
+<numbers>         Review emails (e.g., "1 2 5" or "1-4")
+archive <range>   Bulk archive (e.g., "archive 10-20")
+trello <range>    Create Trello cards (e.g., "trello 1-5")
+show <category>   Filter (urgent/important/other)
+list              Show list again
+done              Finish session
 ```
 
-That's it! Inbox zero in 5 minutes.
+## Dependencies
+
+- `google-api-python-client`, `google-auth` - Gmail API
+- `langchain-google-genai` - LLM triage (Gemini)
+- `pyyaml` - Rules config
+- `gcloud` CLI - Secret Manager access

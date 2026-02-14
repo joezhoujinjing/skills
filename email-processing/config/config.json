@@ -1,0 +1,90 @@
+{
+  "version": "2.0",
+  "timezone": "America/Los_Angeles",
+  "storage": {
+    "base_path": "data",
+    "auto_cleanup": {
+      "enabled": false,
+      "keep_sessions_days": 365
+    }
+  },
+  "llm": {
+    "model": "gemini-3-flash-preview",
+    "api_key": "gsm:gemini-api-key",
+    "temperature": 0.3,
+    "max_output_tokens": 4096,
+    "batch_size": 10,
+    "rate_limit_seconds": 6
+  },
+  "processing": {
+    "auto_trello_confidence_threshold": 0.8
+  },
+  "trello": {
+    "credentials": {
+      "api_key": "gsm:trello-api-key",
+      "token": "gsm:trello-token"
+    },
+    "boards": {
+      "multifi": {
+        "id": "6976f2405277df11314afa35",
+        "category": "work",
+        "description": "Work tasks, customer issues, internal team work, HR/payroll",
+        "lists": { "urgent": "Doing", "normal": "To Do", "completed": "Done" }
+      },
+      "personal": {
+        "id": "6976f1bb8238e63e0a5fe82d",
+        "category": "personal",
+        "description": "Personal life tasks (family, health, home, school, hobbies)",
+        "lists": { "urgent": "Doing", "normal": "To Do", "completed": "Done" }
+      },
+      "clinview": {
+        "id": "6976f242e9cbc09c06eb61a8",
+        "category": "project",
+        "description": "ClinView project tasks",
+        "lists": { "urgent": "Doing", "normal": "To Do", "completed": "Done" }
+      },
+      "huiya": {
+        "id": "6976f243a67fe2f71263e64d",
+        "category": "project",
+        "description": "Huiya project tasks",
+        "lists": { "urgent": "Doing", "normal": "To Do", "completed": "Done" }
+      },
+      "nexus": {
+        "id": "6976f245cf165666653e5d7e",
+        "category": "project",
+        "description": "Nexus project tasks",
+        "lists": { "urgent": "Doing", "normal": "To Do", "completed": "Done" }
+      },
+      "inbox": {
+        "id": "6990692ae816ec19d8632242",
+        "category": "default",
+        "description": "Ambiguous emails that don't clearly fit other boards",
+        "lists": { "urgent": "Doing", "normal": "To Do", "completed": "Done" }
+      }
+    }
+  },
+  "accounts": {
+    "joe@multifi.ai": {
+      "gmail_refresh_token": "gsm:google-all-services-refresh-token-joe-multifi-ai",
+      "default_trello_board": "multifi",
+      "internal_domains": [
+        "multifi.ai"
+      ],
+      "projects": [
+        "nexus",
+        "clinview",
+        "huiya"
+      ]
+    },
+    "joezhoujinjing@gmail.com": {
+      "gmail_refresh_token": "gsm:google-all-services-refresh-token-joezhoujinjing-gmail-com",
+      "default_trello_board": "personal",
+      "internal_domains": [],
+      "projects": [
+        "nexus",
+        "clinview",
+        "huiya"
+      ]
+    }
+  }
+}
