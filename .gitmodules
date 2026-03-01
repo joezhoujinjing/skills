@@ -10,3 +10,6 @@
 [submodule "notebooklm/vendor/notebooklm-mcp-cli"]
 	path = notebooklm/vendor/notebooklm-mcp-cli
 	url = https://github.com/jacob-bd/notebooklm-mcp-cli.git
+[submodule "task-dispatcher"]
+	path = task-dispatcher
+	url = https://github.com/nexi-lab/task-dispatcher.git
